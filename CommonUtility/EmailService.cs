@@ -1,4 +1,5 @@
 ﻿using System.Net.Mail;
+using WellMI.Auth;
 using WellMI.Models;
 
 namespace WellMI.CommonUtility
@@ -6,10 +7,10 @@ namespace WellMI.CommonUtility
     public class EmailService
     {
         public string _environment = string.Empty;
-        public EmailService ( string environment )
+        public EmailService (  )
         {
 
-            _environment = environment;
+            //_environment = environment;
 
         }
         public bool SendEmail ( string toEmail, string subject, string body, List<string> EmailToBcc = null )
@@ -69,7 +70,7 @@ namespace WellMI.CommonUtility
 
         private bool InsertEmail ( string from, string FromName, string toEmail, string toName, string subject, string body, List<string> EmailToBcc, bool isSent )
         {
-            using ( var context = new WellMiContext ( _environment ) )
+            using ( var context = new UserContext ( _environment ) )
             {
                 string emailToBCC = EmailToBcc != null ? string.Join ( ";", EmailToBcc ) : "Null";
 

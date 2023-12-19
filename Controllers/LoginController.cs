@@ -17,12 +17,12 @@ namespace WellMI.Controllers
     [ApiController]
     public class LoginController : ControllerBase
     {
-        //private IConfiguration _config;
-        public readonly UserContext _usercontext;
+        private IConfiguration _config;
+        public readonly UserContext _UserContext;
 
         public LoginController ( UserContext userContext )
         {
-            _usercontext = userContext;
+            _UserContext = userContext;
         }
         //public LoginController ( IConfiguration config )
         //{
@@ -49,80 +49,97 @@ namespace WellMI.Controllers
         //    return Ok ( token );
         //}
         //[HttpGet]
-        //public IActionResult GetData (  )
+        //public IActionResult GetData ()
         //{
-        //    if(_usercontext.Users == null )
+        //    if ( _usercontext.user == null )
         //    {
         //        return NotFound ();
         //    }
-        //    return _usercontext.Users.ToList ();
+        //    return (IActionResult) _usercontext.user.ToList ();
         //}
-        [HttpGet]
-        public async Task<IActionResult> GetDetail ()
-        {
-            //var userList = await _usercontext.user.ToListAsync ();
-            return Ok ( await _usercontext.user.ToListAsync () );
-        }
+        //[HttpGet]
+        //public async Task<IActionResult> GetDetail ()
+        //{
+        //    var userList = await _usercontext.user.ToListAsync ();
+        //    return Ok ( await _usercontext.user.ToListAsync () );
+        //}
 
         [HttpPost]
-        public async Task<IActionResult> Registration ( User user )
+        public async Task<IActionResult> CreateNewEmployer ( User user )
         {
 
             var User = new User ()
-            {
-                Id = user.Id,
+            {              
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 EmailId = user.EmailId,
-                PhoneNumber = user.PhoneNumber,
-                Gender = user.Gender,
-                CreateDate = DateTime.Now,
-                ParentId = user.ParentId,
+                UserType = user.UserType,
+                IsVerify = false,
+                IsDeleted = false,
+                IsActive = false,
                 Password = user.Password,
-                 
+                CreateDate = DateTime.Now,
+                ModifyDate = null,
+
             };
-            await _usercontext.user.AddAsync ( User );
-            await _usercontext.SaveChangesAsync ();
+             await _UserContext.user.AddAsync ( User );
+            if (user.UserType == 2 )
+            {
+                
+                string url = Environment.GetEnvironmentVariable ( "RegistrationOfEmployerUrl" ) ?? string.Empty;
+
+                string confirmationLink = url + User.Id;
+
+                string name = user.FirstName + " " + user.LastName;
+                string subject = "Registration of Employer";
+                string body = " Link for Registration of Employer" + confirmationLink;
+
+                EmailService emailService = new EmailService (  );
+                emailService.SendEmail ( user.EmailId, subject, body );
+
+
+            }
+            await _UserContext.SaveChangesAsync ();
+
 
             return Ok ( User );
 
         }
 
-        [HttpPut]
-        [Route ( "{Id:long}" )]
-        public async Task<IActionResult> UpdateData ( [FromRoute] long Id, User user )
-        {
-            var Data = _usercontext.user.Find ( Id );
-            if ( Data != null )
-            {
-                Data.FirstName = user.FirstName;
-                Data.LastName = user.LastName;
-                Data.PhoneNumber = user.PhoneNumber;
-                Data.EmailId = user.EmailId;
-                Data.Password = user.Password;
+        //[HttpPut]
+        //[Route ( "{Id:long}" )]
+        //public async Task<IActionResult> UpdateData ( [FromRoute] long Id, Employer employer )
+        //{
+        //    var Data = _wellMiContext.Employers.Find ( Id );
+        //    if ( Data != null )
+        //    {
 
-                await _usercontext.SaveChangesAsync ();
+        //        Data. = employer.LastName;
+        //        Data.EmailId = employer.EmailId;
+        //        Data.Password = employer.Password;
 
-                return Ok ( Data );
-            }
-            return NotFound ();
-        }
-        [HttpPut]
-        [Route ( "{Id:long}" )]
-        public async Task<IActionResult> DeleteData ( [FromRoute] long Id)
-        {
-            var Data = _usercontext.user.Find ( Id );
-            if ( Data != null )
-            {
-                Data.IsActive = false;
-                Data.IsActive = true;
+        //        await _wellMiContext.SaveChangesAsync ();
 
-                await _usercontext.SaveChangesAsync ();
+        //        return Ok ( Data );
+        //    }
+        //    return NotFound ();
+        //}
+        //[HttpPut]
+        //[Route ( "{Id:long}" )]
+        //public async Task<IActionResult> DeleteData ( [FromRoute] long Id )
+        //{
+        //    var Data = _usercontext.user.Find ( Id );
+        //    if ( Data != null )
+        //    {
+        //        Data.IsActive = false;
+        //        Data.IsActive = true;
 
-                return Ok ( Data );
-            }
-            return NotFound ();
-        }
+        //        await _usercontext.SaveChangesAsync ();
+
+        //        return Ok ( Data );
+        //    }
+        //    return NotFound ();
+        //}
     }
 
 
