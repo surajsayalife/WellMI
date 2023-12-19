@@ -1,39 +1,68 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using WellMI.Data;
+using WellMI.Auth;
 
 var builder = WebApplication.CreateBuilder ( args );
 
 // Add services to the container.
-builder.Services.AddDbContext<UserContext> ( Options =>
+builder.Services.AddDbContext<AuthenticationContext> ( Options =>
 Options.UseSqlServer ( builder.Configuration.GetConnectionString ("UserCs") ) );
 
-builder.Services.AddAuthentication ( JwtBearerDefaults.AuthenticationScheme ).
-    AddJwtBearer ( optins =>
-    {
-        optins.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidIssuer = builder.Configuration ["Jwt:Issuer"],
-            ValidAudience = builder.Configuration ["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey ( Encoding.UTF8.GetBytes ( builder.Configuration ["Jwt:Key"] ) )
+builder.Services.AddIdentity<IdentityUser, IdentityRole> ()
+    .AddEntityFrameworkStores<AuthenticationContext> ()
+    .AddDefaultTokenProviders ();
 
-        };
-
-    }
-    );
-builder.Services.AddAuthentication ( Options =>
+builder.Services.AddAuthentication ( options =>
 {
-    Options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    Options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    Options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}
-);
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+} )
+
+
+.AddJwtBearer ( options =>
+{
+    options.SaveToken = true;
+    options.RequireHttpsMetadata = false;
+    options.TokenValidationParameters = new TokenValidationParameters ()
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["JWT:ValidAudience"],
+        ValidIssuer = builder.Configuration ["JWT:ValidIssuer"],
+        IssuerSigningKey = new SymmetricSecurityKey ( Encoding.UTF8.GetBytes ( builder.Configuration ["JWT:Secret"] ) )
+    };
+} );
+
+
+
+//builder.Services.AddAuthentication ( JwtBearerDefaults.AuthenticationScheme ).
+//    AddJwtBearer ( optins =>
+//    {
+//        optins.TokenValidationParameters = new TokenValidationParameters
+//        {
+//            ValidateIssuer = true,
+//            ValidateAudience = true,
+//            ValidateLifetime = true,
+//            ValidIssuer = builder.Configuration ["Jwt:Issuer"],
+//            ValidAudience = builder.Configuration ["Jwt:Audience"],
+//            IssuerSigningKey = new SymmetricSecurityKey ( Encoding.UTF8.GetBytes ( builder.Configuration ["Jwt:Key"] ) )
+
+//        };
+
+//    }
+//    );
+//builder.Services.AddAuthentication ( Options =>
+//{
+//    Options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+//    Options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+//    Options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+//}
+//);
 
 builder.Services.AddControllers ();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
