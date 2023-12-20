@@ -11,13 +11,13 @@ public partial class Employer
 
     public string? CompanyName { get; set; }
 
-    public int UserRegistrationInviteCode { get; set; }
+    public string UserRegistrationInviteCode { get; set; }
 
-    public int EmployerRegistrationInviteCode { get; set; }
+    public string EmployerRegistrationInviteCode { get; set; }
 
     public DateTime? CreateDate { get; set; }
 
     public DateTime? ModifyDate { get; set; }
 
-    public virtual User? User { get; set; }
+    
 }

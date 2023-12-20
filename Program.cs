@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder ( args );
 
 // Add services to the container.
 builder.Services.AddDbContext<UserContext> ( Options =>
-Options.UseSqlServer ( builder.Configuration.GetConnectionString ( "Server=192.168.29.3;Database=WellMI;Trusted_Connection=True;TrustServerCertificate=True;user=dbuser;password=test#123;" ) ) );
+Options.UseSqlServer ( builder.Configuration.GetConnectionString ( "UserCs" ) ) );
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole> ()
     .AddEntityFrameworkStores<UserContext> ()

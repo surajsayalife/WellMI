@@ -1,14 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace WellMI.Models;
 
 public partial class User
 {
-    [Key]
-     public int Id { get; set; }
+    public int Id { get; set; }
 
     public string? FirstName { get; set; }
 
@@ -30,5 +27,5 @@ public partial class User
 
     public bool? IsVerify { get; set; }
 
-    
+   
 }

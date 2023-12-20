@@ -88,7 +88,7 @@ namespace WellMI.CommonUtility
 
                 };
 
-                context.EmailHistories.Add ( emailHistory );
+                 context.EmailHistory.Add ( emailHistory );               
                 int rowsAffected = context.SaveChanges ();
 
                 return rowsAffected > 0;

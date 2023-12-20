@@ -82,48 +82,58 @@ namespace WellMI.Controllers
                 ModifyDate = null,
 
             };
-             await _UserContext.user.AddAsync ( User );
+             await _UserContext.User.AddAsync ( User );
             if (user.UserType == 2 )
             {
                 
                 string url = Environment.GetEnvironmentVariable ( "RegistrationOfEmployerUrl" ) ?? string.Empty;
 
-                string confirmationLink = url + User.Id;
+                string confirmationLink = url + user.FirstName+ ' '+user.LastName;
 
                 string name = user.FirstName + " " + user.LastName;
                 string subject = "Registration of Employer";
                 string body = " Link for Registration of Employer" + confirmationLink;
 
                 EmailService emailService = new EmailService (  );
-                emailService.SendEmail ( user.EmailId, subject, body );
-
-
+                emailService.SendEmail ( user.EmailId, subject, body );             
             }
-            await _UserContext.SaveChangesAsync ();
-
-
+           await _UserContext.SaveChangesAsync ();
             return Ok ( User );
 
         }
 
-        //[HttpPut]
-        //[Route ( "{Id:long}" )]
-        //public async Task<IActionResult> UpdateData ( [FromRoute] long Id, Employer employer )
-        //{
-        //    var Data = _wellMiContext.Employers.Find ( Id );
-        //    if ( Data != null )
-        //    {
+        [HttpPut]
+        [Route ( "{Id:long}" )]
+        public async Task<IActionResult> UpdateData ( [FromRoute] int Id, Employer employer ,string Password )
+        {
+            var Data = _UserContext.User.Find ( Id );
+            if ( Data != null )
+            {
+                Data.Password = Password;
+                Data.IsVerify = true;
+                Data.IsActive = true;
 
-        //        Data. = employer.LastName;
-        //        Data.EmailId = employer.EmailId;
-        //        Data.Password = employer.Password;
+                await _UserContext.SaveChangesAsync ();
 
-        //        await _wellMiContext.SaveChangesAsync ();
+                if (Password != null )
+                {
+                    var emp = new Employer ();
 
-        //        return Ok ( Data );
-        //    }
-        //    return NotFound ();
-        //}
+                    emp.UserId = Id;
+                    emp.CompanyName = employer.CompanyName;
+                    emp.UserRegistrationInviteCode = Convert.ToString ( Guid.NewGuid () );
+                    emp.EmployerRegistrationInviteCode = Convert.ToString ( Guid.NewGuid () );
+                    emp.CreateDate = DateTime.Now;
+                    emp.ModifyDate = null;
+
+                    await _UserContext.Employer.AddAsync ( emp );
+                    await _UserContext.SaveChangesAsync ();
+
+                }
+                return Ok ( Data );
+            }
+            return NotFound ();
+        }
         //[HttpPut]
         //[Route ( "{Id:long}" )]
         //public async Task<IActionResult> DeleteData ( [FromRoute] long Id )
